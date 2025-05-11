@@ -1,0 +1,44 @@
+version: "3"
+volumes:
+  pg_data:
+  static:
+services:
+  frontend:
+    env_file: docker-test.env
+    build: ./frontend/
+    command: cp -r /app/build/. /static/
+    volumes:
+      - static:/static
+  db:
+    image: postgres:15
+    env_file: docker-test.env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+  backend:
+    build: ./backend/
+    env_file: docker-test.env
+    depends_on:
+      - db
+    volumes:
+      - static:/static
+    ports:
+      - "8000:8000"
+      # DEBUG
+    networks:
+      - app_network
+  gateway:
+    build: ./gateway/
+    env_file: docker-test.env
+    ports:
+      - "8080:80"
+    volumes:
+      - static:/static
+    networks:
+      - app_network
+    depends_on:
+      - backend
+networks:
+  app_network:
+    driver: bridge
