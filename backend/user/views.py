@@ -1,4 +1,6 @@
 from rest_framework import viewsets, status, permissions
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
@@ -107,4 +109,22 @@ class CustomUserViewSet(UserViewSet):
             )
         
         subscription.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT) 
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class UserAvatarView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        serializer = SetAvatarSerializer(
+            request.user, data=request.data, partial=True, context={'request': request}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        user = request.user
+        user.avatar = None
+        user.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)

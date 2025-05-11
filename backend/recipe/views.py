@@ -7,6 +7,8 @@ from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 
+from rest_framework.permissions import AllowAny
+
 from .models import Recipe, RecipeIngredient
 from .serializers import (
     RecipeListSerializer, RecipeCreateUpdateSerializer,
@@ -19,9 +21,14 @@ from core.models import FavoriteRecipe, ShoppingCart
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    permission_classes = [IsAuthorOrReadOnly]
+    # permission_classes = [IsAuthorOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve', 'get_link']:
+            return [AllowAny()]
+        return [IsAuthorOrReadOnly()]
 
     def get_serializer_class(self):
         if self.action in ('create', 'update', 'partial_update'):

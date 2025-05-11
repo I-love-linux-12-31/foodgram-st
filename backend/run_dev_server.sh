@@ -14,4 +14,16 @@ fi
 
 python3 manage.py migrate
 
+if [ ! -d static_backend ]; then
+  python3 manage.py collectstatic
+  mkdir -p static_backend/media
+fi
+
+
+echo "Launching load_ingredients script"
+python3 load_ingredients.py && echo "Ok" || echo "ERROR"
+
+echo "Running server..."
+echo "Debug: $DEBUG"
+
 python3 manage.py runserver
