@@ -27,6 +27,8 @@ from user.views import CustomUserViewSet, UserAvatarView
 from recipe.views import RecipeViewSet
 from ingredient.views import IngredientViewSet
 
+from .views import health
+
 # DRF API Router
 router = DefaultRouter()
 router.register('users', CustomUserViewSet, basename='users')
@@ -54,6 +56,8 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
     path('api/users/me/avatar/', UserAvatarView.as_view(), name='user-avatar'),
+
+    path('api/health/', health, name='health-check'),
 ]
 
 if settings.DEBUG:
