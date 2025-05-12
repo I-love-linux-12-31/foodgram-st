@@ -1,6 +1,6 @@
 from rest_framework import viewsets, status, permissions
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
@@ -19,6 +19,11 @@ User = get_user_model()
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
+
+    def get_permissions(self):
+        if self.action in ['retrieve',]: #  'me'
+            return [AllowAny()]
+        return super().get_permissions()
 
     @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
     def me(self, request):
@@ -43,6 +48,9 @@ class CustomUserViewSet(UserViewSet):
             user.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
         
+        if 'avatar' not in request.data or not request.data['avatar']:
+            return Response({'avatar': ['This field is required.']}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = SetAvatarSerializer(
             request.user,
             data=request.data,
@@ -115,6 +123,9 @@ class UserAvatarView(APIView):
     permission_classes = [IsAuthenticated]
 
     def put(self, request):
+        if 'avatar' not in request.data or not request.data['avatar']:
+            return Response({'avatar': ['This field is required.']}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = SetAvatarSerializer(
             request.user, data=request.data, partial=True, context={'request': request}
         )

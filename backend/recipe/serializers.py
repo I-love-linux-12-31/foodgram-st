@@ -73,7 +73,9 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        ingredients_data = validated_data.pop('ingredients')
+        ingredients_data = validated_data.pop('ingredients', None)
+        if ingredients_data is None or not ingredients_data:
+            raise serializers.ValidationError({'ingredients': ['This field is required and cannot be empty.']})
         recipe = Recipe.objects.create(author=self.context['request'].user, **validated_data)
         
         recipe_ingredients = [
@@ -90,24 +92,22 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def update(self, instance, validated_data):
         ingredients_data = validated_data.pop('ingredients', None)
-        
+        if ingredients_data is None or not ingredients_data:
+            raise serializers.ValidationError({'ingredients': ['This field is required and cannot be empty.']})
         # Update recipe fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
-        
         # Update ingredients if provided
-        if ingredients_data is not None:
-            instance.recipe_ingredients.all().delete()
-            recipe_ingredients = [
-                RecipeIngredient(
-                    recipe=instance,
-                    ingredient=ingredient_data['id'],
-                    amount=ingredient_data['amount']
-                ) for ingredient_data in ingredients_data
-            ]
-            RecipeIngredient.objects.bulk_create(recipe_ingredients)
-        
+        instance.recipe_ingredients.all().delete()
+        recipe_ingredients = [
+            RecipeIngredient(
+                recipe=instance,
+                ingredient=ingredient_data['id'],
+                amount=ingredient_data['amount']
+            ) for ingredient_data in ingredients_data
+        ]
+        RecipeIngredient.objects.bulk_create(recipe_ingredients)
         return instance
 
     def to_representation(self, instance):
@@ -122,23 +122,22 @@ class RecipeMinifiedSerializer(serializers.ModelSerializer):
 
 class RecipeShortLinkSerializer(serializers.ModelSerializer):
     short_link = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Recipe
-        fields = ('short_link',)
-    
+        fields = ('short-link',)
+
     def get_short_link(self, obj):
         request = self.context.get('request')
         host = request.get_host() if request else 'foodgram.example.org'
         protocol = 'https' if request and request.is_secure() else 'http'
-        
         try:
             short_link = obj.short_link
         except ShortLink.DoesNotExist:
-            # Generate a new short link
-            import random
-            import string
+            import random, string
             code = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
             short_link = ShortLink.objects.create(recipe=obj, short_code=code)
-        
-        return f"{protocol}://{host}/s/{short_link.short_code}" 
+        return f"{protocol}://{host}/s/{short_link.short_code}"
+
+    def to_representation(self, instance):
+        return {'short-link': self.get_short_link(instance)}
