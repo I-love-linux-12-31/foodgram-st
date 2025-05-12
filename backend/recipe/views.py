@@ -5,7 +5,6 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Sum
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Q
 
 from rest_framework.permissions import AllowAny
 
@@ -35,11 +34,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeCreateUpdateSerializer
         return RecipeListSerializer
 
-    @action(detail=True, methods=['get'])
-    def get_link(self, request, pk=None):
-        recipe = self.get_object()
-        serializer = RecipeShortLinkSerializer(recipe, context={'request': request})
-        return Response(serializer.data)
+    # @action(detail=True, methods=['get'])
+    # def get_link(self, request, pk=None):
+    #     recipe = self.get_object()
+    #     serializer = RecipeShortLinkSerializer(recipe, context={'request': request})
+    #     return Response(serializer.data)
 
     @action(
         detail=True,

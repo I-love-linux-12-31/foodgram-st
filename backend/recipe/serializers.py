@@ -1,3 +1,6 @@
+import random
+import string
+
 from rest_framework import serializers
 from django.db import transaction
 
@@ -134,7 +137,6 @@ class RecipeShortLinkSerializer(serializers.ModelSerializer):
         try:
             short_link = obj.short_link
         except ShortLink.DoesNotExist:
-            import random, string
             code = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
             short_link = ShortLink.objects.create(recipe=obj, short_code=code)
         return f"{protocol}://{host}/s/{short_link.short_code}"
