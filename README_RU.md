@@ -52,11 +52,11 @@ Foodgram - это веб-приложение и API для публикации
 
 Docker-compose:
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/I-love-linux-12-31/foodgram-st/refs/heads/main/docs/fast_deploy.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/I-love-linux-12-31/foodgram-st/refs/heads/main/fast_deploy.sh)
 ```
 Podman-compose
 ```bash
-USE_PODMAN=1 bash <(curl -fsSL https://raw.githubusercontent.com/I-love-linux-12-31/foodgram-st/refs/heads/main/docs/fast_deploy.sh)
+USE_PODMAN=1 bash <(curl -fsSL https://raw.githubusercontent.com/I-love-linux-12-31/foodgram-st/refs/heads/main/fast_deploy.sh)
 ```
 
 Что делает скрипт:
