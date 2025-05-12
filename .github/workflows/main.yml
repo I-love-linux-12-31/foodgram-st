@@ -102,8 +102,8 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend/
-          npm install
-          npm install --global http-server
+          npm install --legacy-peer-deps
+          npm install --global http-server --legacy-peer-deps
       - name: Test frontend
         run: |
           cd frontend/
