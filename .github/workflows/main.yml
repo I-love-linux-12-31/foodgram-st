@@ -102,7 +102,8 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend/
-          npm ci
+          npm install
+          npm install --global http-server
       - name: Test frontend
         run: |
           cd frontend/
