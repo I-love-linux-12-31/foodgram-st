@@ -37,6 +37,7 @@ Foodgram - это веб-приложение и API для публикации
 * PostgreSQL
 
 ### frontend
+* JS
 * React
 
 ### другое
@@ -68,7 +69,7 @@ git clone https://github.com/I-love-linux-12-31/foodgram-st.git
 cd foodgram-st
 ```
 
-Docker-compose
+Docker-compose:
 ```bash
 cp ./docker-example.env ./docker.env # Create .env file from template
 # Edit docker.env file 
@@ -96,7 +97,16 @@ source .env
 
 #### Продакшн
 ```bash
+cd backend
+set -a
+source .env
+python3 -m gunicorn --bind 0.0.0.0:8000 backend.wsgi
+```
 
+2ой Вариант:
+```bash
+cd backend
+DEBUG=0 ./run_dev_server.sh
 ```
 
 #### Сервер разработки
