@@ -1,0 +1,44 @@
+version: "3"
+volumes:
+  pg_data:
+  static:
+services:
+  frontend:
+    env_file: docker.env
+    image: yaroslavk1231/foodgram_st_frontend:latest
+    command: cp -r /app/build/. /static/
+    volumes:
+      - static:/static
+  db:
+    image: postgres:17
+    env_file: docker.env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+  backend:
+    image: yaroslavk1231/foodgram_st_backend:latest
+    env_file: docker.env
+    depends_on:
+      - db
+    volumes:
+      - static:/static
+    # ports:
+    #  - "8000:8000"
+    #  # DEBUG
+    networks:
+      - app_network
+  gateway:
+    image: yaroslavk1231/foodgram_st_gateway:latest
+    env_file: docker.env
+    ports:
+      - "8080:80"
+    volumes:
+      - static:/static
+    networks:
+      - app_network
+    depends_on:
+      - backend
+networks:
+  app_network:
+    driver: bridge
