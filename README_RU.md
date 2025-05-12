@@ -37,6 +37,7 @@ Foodgram - это веб-приложение и API для публикации
 * PostgreSQL
 
 ### frontend
+* JS
 * React
 
 ### другое
@@ -46,13 +47,29 @@ Foodgram - это веб-приложение и API для публикации
 ## Запуск
 
 ### Контейнеризированная версия: Быстрый деплой
+Скачивания проекта не требуется!
+**Поддерживается только Linux!**
 
-**Поддерживается только Linux**
+Docker-compose:
 ```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/I-love-linux-12-31/foodgram-st/refs/heads/main/docs/fast_deploy.sh)
+```
+Podman-compose
+```bash
+USE_PODMAN=1 bash <(curl -fsSL https://raw.githubusercontent.com/I-love-linux-12-31/foodgram-st/refs/heads/main/docs/fast_deploy.sh)
 ```
 
+Что делает скрипт:
+1) Скачивает файлы конфигурации
+2) Запускает контейнеры через (docker/podman compose)
+
 ### Контейнеризированная версия: Со сборкой
-Docker-compose
+```bash
+git clone https://github.com/I-love-linux-12-31/foodgram-st.git
+cd foodgram-st
+```
+
+Docker-compose:
 ```bash
 cp ./docker-example.env ./docker.env # Create .env file from template
 # Edit docker.env file 
@@ -80,7 +97,16 @@ source .env
 
 #### Продакшн
 ```bash
+cd backend
+set -a
+source .env
+python3 -m gunicorn --bind 0.0.0.0:8000 backend.wsgi
+```
 
+2ой Вариант:
+```bash
+cd backend
+DEBUG=0 ./run_dev_server.sh
 ```
 
 #### Сервер разработки

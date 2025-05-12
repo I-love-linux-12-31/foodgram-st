@@ -27,10 +27,10 @@ echo "Running server..."
 echo "Debug: $DEBUG"
 
 # python3 manage.py runserver
-if [ -z "$DEBUG" ] || [ "$DEBUG" -eq 0 ] ; then
+if [ -z "$DEBUG" ] || [ "$DEBUG" -eq 1 ] ; then
   # "DEBUG"
   python3 manage.py runserver "0:8000"
 else
   # "PROD"
-  gunicorn --bind 0.0.0.0:8000 backend.wsgi
+  python3 -m gunicorn --bind 0.0.0.0:8000 backend.wsgi
 fi
