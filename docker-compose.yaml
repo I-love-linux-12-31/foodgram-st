@@ -4,21 +4,21 @@ volumes:
   static:
 services:
   frontend:
-    env_file: docker-test.env
+    env_file: docker.env
     build: ./frontend/
     command: cp -r /app/build/. /static/
     volumes:
       - static:/static
   db:
-    image: postgres:15
-    env_file: docker-test.env
+    image: postgres:17
+    env_file: docker.env
     volumes:
       - pg_data:/var/lib/postgresql/data
     networks:
       - app_network
   backend:
     build: ./backend/
-    env_file: docker-test.env
+    env_file: docker.env
     depends_on:
       - db
     volumes:
@@ -30,7 +30,7 @@ services:
       - app_network
   gateway:
     build: ./gateway/
-    env_file: docker-test.env
+    env_file: docker.env
     ports:
       - "8080:80"
     volumes:
