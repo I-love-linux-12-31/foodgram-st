@@ -16,10 +16,13 @@ fi
 
 echo "Files downloaded. Launching containers..."
 
-if [ -z "$USE_PODMAN" ]; then
-  echo "Using podman-compose"
-  podman-compose up
-else
+if [ -z "$USE_PODMAN" ] || [ "$USE_PODMAN" -eq 0 ]; then
+  # USE_PODMAN = 0 or not defined
+  # Docker
   echo "Using docker-compose"
   sudo docker-compose up
+else
+  # Podman
+  echo "Using podman-compose"
+  podman-compose up
 fi
