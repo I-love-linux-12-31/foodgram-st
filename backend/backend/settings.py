@@ -30,7 +30,14 @@ SECRET_KEY = os.environ.get('SECRET_KEY', hashlib.sha256(os.urandom(24)).hexdige
 
 DEBUG = os.environ.get('DEBUG', False)
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'backend', os.environ.get('DOMAIN_NAME', '127.0.0.1'), os.environ.get('EXTERNAL_IP'), '127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1',
+                 'localhost',
+                 'backend',
+                 os.environ.get('DOMAIN_NAME', '127.0.0.1'),
+                 os.environ.get('EXTERNAL_IP'),
+                 F"{os.environ.get('DOMAIN_NAME', '127.0.0.1')}:8080",
+                 F"{os.environ.get('EXTERNAL_IP')}:8080",
+                 '127.0.0.1']
 
 
 # Application definition

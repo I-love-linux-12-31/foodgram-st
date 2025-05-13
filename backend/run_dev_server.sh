@@ -23,7 +23,7 @@ fi
 echo "Launching load_ingredients script"
 python3 load_ingredients.py && echo "Ok" || echo "ERROR"
 
-if [ -z "$DEMO_DATA" ] || [ "$DEMO_DATA" -eq 1 ] ; then
+if [[ "${DEMO_DATA}" == "1" ]]; then
   echo "Launching create_test_data script"
   python3 create_test_data.py && echo "Ok" || echo "ERROR"
 fi
