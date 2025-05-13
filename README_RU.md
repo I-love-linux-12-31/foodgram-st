@@ -134,3 +134,13 @@ DEBUG=0 ./run_dev_server.sh
 cd backend
 DEBUG=1 ./run_dev_server.sh
 ```
+
+## Тесты
+⚠️ Тесты не совместимы с подготовленными данными(Кроме ингредиентов).  
+### Линтер
+```bash
+ruff check backend/
+```
+
+### Postman
+Смотрите документацию в каталоге postman_collection

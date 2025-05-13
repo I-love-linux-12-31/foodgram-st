@@ -133,3 +133,13 @@ DEBUG=0 ./run_dev_server.sh
 cd backend
 DEBUG=1 ./run_dev_server.sh
 ```
+
+## Tests
+⚠️ Postman tests are NOT compatible with all demo data. ``DEMO_DATA=0`` recommended.    
+### Linter
+```bash
+ruff check backend/
+```
+
+### Postman
+See docs in postman_collection folder
