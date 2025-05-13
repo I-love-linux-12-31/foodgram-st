@@ -1,4 +1,5 @@
 # Foodgram-st
+Документация [**на Русском языке (RU)**](https://github.com/I-love-linux-12-31/foodgram-st/blob/main/README_RU.md)
 ## Project Description
 
 Foodgram is a web application and API for publishing recipes and creating a list of necessary ingredients, built using Django 5. 
