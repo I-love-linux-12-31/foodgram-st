@@ -37,7 +37,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     # @action(detail=True, methods=['get'])
     # def get_link(self, request, pk=None):
     #     recipe = self.get_object()
-    #     serializer = RecipeShortLinkSerializer(recipe, context={'request': request})
+    #     serializer = RecipeShortLinkSerializer(
+    #     recipe, context={'request': request}
+    #     )
     #     return Response(serializer.data)
 
     @action(
@@ -84,7 +86,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             )
 
         response = HttpResponse(shopping_list, content_type='text/plain')
-        response['Content-Disposition'] = 'attachment; filename="shopping_list.txt"'
+        response[
+            'Content-Disposition'
+        ] = 'attachment; filename="shopping_list.txt"'
         return response
 
     def _add_or_remove_recipe(self, request, pk, model_class, list_name):
@@ -116,5 +120,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'], url_path='get-link')
     def get_link(self, request, pk=None):
         recipe = self.get_object()
-        serializer = RecipeShortLinkSerializer(recipe, context={'request': request})
+        serializer = RecipeShortLinkSerializer(
+            recipe,
+            context={'request': request}
+        )
         return Response(serializer.data)

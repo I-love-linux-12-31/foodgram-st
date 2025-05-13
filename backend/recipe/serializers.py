@@ -13,7 +13,9 @@ from core.models import FavoriteRecipe, ShoppingCart, ShortLink
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
-    measurement_unit = serializers.ReadOnlyField(source='ingredient.measurement_unit')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
+    )
 
     class Meta:
         model = RecipeIngredient
@@ -31,7 +33,11 @@ class IngredientForRecipeSerializer(serializers.ModelSerializer):
 
 class RecipeListSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
-    ingredients = IngredientInRecipeSerializer(source='recipe_ingredients', many=True, read_only=True)
+    ingredients = IngredientInRecipeSerializer(
+        source='recipe_ingredients',
+        many=True,
+        read_only=True
+    )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     image = Base64ImageField(read_only=True)
@@ -47,13 +53,19 @@ class RecipeListSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
             return False
-        return FavoriteRecipe.objects.filter(user=request.user, recipe=obj).exists()
+        return FavoriteRecipe.objects.filter(
+            user=request.user,
+            recipe=obj
+        ).exists()
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
             return False
-        return ShoppingCart.objects.filter(user=request.user, recipe=obj).exists()
+        return ShoppingCart.objects.filter(
+            user=request.user,
+            recipe=obj
+        ).exists()
 
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
@@ -66,7 +78,9 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
     def validate_ingredients(self, value):
         if not value:
-            raise serializers.ValidationError("You need to add at least one ingredient.")
+            raise serializers.ValidationError(
+                "You need to add at least one ingredient."
+            )
 
         ingredients_ids = [item['id'].id for item in value]
         if len(ingredients_ids) != len(set(ingredients_ids)):
@@ -78,8 +92,15 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients', None)
         if ingredients_data is None or not ingredients_data:
-            raise serializers.ValidationError({'ingredients': ['This field is required and cannot be empty.']})
-        recipe = Recipe.objects.create(author=self.context['request'].user, **validated_data)
+            raise serializers.ValidationError(
+                {'ingredients': [
+                    'This field is required and cannot be empty.'
+                ]
+                }
+            )
+        recipe = Recipe.objects.create(
+            author=self.context['request'].user, **validated_data
+        )
 
         recipe_ingredients = [
             RecipeIngredient(
@@ -96,7 +117,12 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         ingredients_data = validated_data.pop('ingredients', None)
         if ingredients_data is None or not ingredients_data:
-            raise serializers.ValidationError({'ingredients': ['This field is required and cannot be empty.']})
+            raise serializers.ValidationError(
+                {'ingredients': [
+                    'This field is required and cannot be empty.'
+                ]
+                }
+            )
         # Update recipe fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -137,9 +163,11 @@ class RecipeShortLinkSerializer(serializers.ModelSerializer):
         try:
             short_link = obj.short_link
         except ShortLink.DoesNotExist:
-            code = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+            code = ''.join(
+                random.choices(string.ascii_letters + string.digits, k=6)
+            )
             short_link = ShortLink.objects.create(recipe=obj, short_code=code)
-        return f"{protocol}://{host}/s/{short_link.short_code}"
+        return f"{protocol}://{host}/s/{short_link.short_code}"  # noqa: E231
 
     def to_representation(self, instance):
         return {'short-link': self.get_short_link(instance)}

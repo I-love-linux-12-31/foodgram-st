@@ -21,18 +21,29 @@ class CustomUserViewSet(UserViewSet):
     serializer_class = CustomUserSerializer
 
     def get_permissions(self):
-        if self.action in ['retrieve',]: #  'me'
+        if self.action in ['retrieve', ]:  # 'me'
             return [AllowAny()]
         return super().get_permissions()
 
-    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    @action(
+        detail=False,
+        methods=['get'],
+        permission_classes=[permissions.IsAuthenticated]
+    )
     def me(self, request):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    @action(
+        detail=False,
+        methods=['post'],
+        permission_classes=[permissions.IsAuthenticated]
+    )
     def set_password(self, request):
-        serializer = SetPasswordSerializer(data=request.data, context={'request': request})
+        serializer = SetPasswordSerializer(
+            data=request.data,
+            context={'request': request}
+        )
         if serializer.is_valid():
             user = request.user
             user.set_password(serializer.validated_data['new_password'])
@@ -40,7 +51,11 @@ class CustomUserViewSet(UserViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['put', 'delete'], permission_classes=[permissions.IsAuthenticated])
+    @action(
+        detail=False,
+        methods=['put', 'delete'],
+        permission_classes=[permissions.IsAuthenticated]
+    )
     def avatar(self, request):
         if request.method == 'DELETE':
             user = request.user
@@ -49,7 +64,10 @@ class CustomUserViewSet(UserViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         if 'avatar' not in request.data or not request.data['avatar']:
-            return Response({'avatar': ['This field is required.']}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'avatar': ['This field is required.']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         serializer = SetAvatarSerializer(
             request.user,
@@ -62,7 +80,11 @@ class CustomUserViewSet(UserViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    @action(
+        detail=False,
+        methods=['get'],
+        permission_classes=[permissions.IsAuthenticated]
+    )
     def subscriptions(self, request):
         subscribed_users = User.objects.filter(subscribers__user=request.user)
         page = self.paginate_queryset(subscribed_users)
@@ -78,7 +100,11 @@ class CustomUserViewSet(UserViewSet):
         )
         return Response(serializer.data)
 
-    @action(detail=True, methods=['post', 'delete'], permission_classes=[permissions.IsAuthenticated])
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=[permissions.IsAuthenticated]
+    )
     def subscribe(self, request, id=None):
         user = request.user
         author = get_object_or_404(User, id=id)
@@ -119,15 +145,22 @@ class CustomUserViewSet(UserViewSet):
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 class UserAvatarView(APIView):
     permission_classes = [IsAuthenticated]
 
     def put(self, request):
         if 'avatar' not in request.data or not request.data['avatar']:
-            return Response({'avatar': ['This field is required.']}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'avatar': ['This field is required.']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         serializer = SetAvatarSerializer(
-            request.user, data=request.data, partial=True, context={'request': request}
+            request.user,
+            data=request.data,
+            partial=True,
+            context={'request': request}
         )
         if serializer.is_valid():
             serializer.save()

@@ -35,8 +35,8 @@ ALLOWED_HOSTS = ['127.0.0.1',
                  'backend',
                  os.environ.get('DOMAIN_NAME', '127.0.0.1'),
                  os.environ.get('EXTERNAL_IP'),
-                 F"{os.environ.get('DOMAIN_NAME', '127.0.0.1')}:8080",
-                 F"{os.environ.get('EXTERNAL_IP')}:8080",
+                 F"{os.environ.get('DOMAIN_NAME', '127.0.0.1')}:8080",  # noqa: E231
+                 F"{os.environ.get('EXTERNAL_IP')}:8080",  # noqa: E231
                  '127.0.0.1']
 
 
@@ -165,7 +165,7 @@ else:
     STATIC_ROOT = BASE_DIR / 'static_backend'
 
     MEDIA_URL = '/media/'
-    MEDIA_ROOT =  STATIC_ROOT / 'media'
+    MEDIA_ROOT = STATIC_ROOT / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

@@ -4,9 +4,18 @@ from user.models import User
 # from ..ingredient.models import Ingredient #
 from recipe.models import Recipe
 
+
 class Subscription(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
-    subscribed_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscribers')
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='subscriptions'
+    )
+    subscribed_to = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='subscribers'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -19,11 +28,21 @@ class Subscription(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.user.username} subscribed to {self.subscribed_to.username}"
+        return (f"{self.user.username} subscribed to"
+                f" {self.subscribed_to.username}")
+
 
 class ShoppingCart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shopping_cart')
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='in_shopping_carts')
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='shopping_cart'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='in_shopping_carts'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -38,9 +57,18 @@ class ShoppingCart(models.Model):
     def __str__(self):
         return f"{self.recipe.name} in {self.user.username}'s shopping cart"
 
+
 class FavoriteRecipe(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorites')
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='favorited_by')
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='favorites'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='favorited_by'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -62,8 +90,13 @@ class FavoriteRecipe(models.Model):
 #     def __str__(self):
 #         return f'Token {self.token} for {self.user.username}'
 
+
 class ShortLink(models.Model):
-    recipe = models.OneToOneField(Recipe, on_delete=models.CASCADE, related_name='short_link')
+    recipe = models.OneToOneField(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='short_link'
+    )
     short_code = models.CharField(max_length=10, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -5,7 +5,12 @@ from .models import Subscription, ShoppingCart, FavoriteRecipe, ShortLink
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ('user', 'subscribed_to', 'created_at')
-    search_fields = ('user__username', 'user__email', 'subscribed_to__username', 'subscribed_to__email')
+    search_fields = (
+        'user__username',
+        'user__email',
+        'subscribed_to__username',
+        'subscribed_to__email'
+    )
     list_filter = ('created_at',)
 
 
