@@ -142,5 +142,10 @@ DEBUG=1 ./run_dev_server.sh
 ruff check backend/
 ```
 
+```bash
+flake8 | grep W
+flake8 | grep E
+```
+
 ### Postman
 See docs in postman_collection folder
