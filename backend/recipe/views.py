@@ -117,5 +117,4 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_link(self, request, pk=None):
         recipe = self.get_object()
         serializer = RecipeShortLinkSerializer(recipe, context={'request': request})
-        return Response(serializer.data) 
-    
+        return Response(serializer.data)

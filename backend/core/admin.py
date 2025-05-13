@@ -27,4 +27,4 @@ class FavoriteRecipeAdmin(admin.ModelAdmin):
 class ShortLinkAdmin(admin.ModelAdmin):
     list_display = ('recipe', 'short_code', 'created_at')
     search_fields = ('recipe__name', 'short_code')
-    list_filter = ('created_at',) 
+    list_filter = ('created_at',)

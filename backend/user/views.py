@@ -47,7 +47,7 @@ class CustomUserViewSet(UserViewSet):
             user.avatar = None
             user.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        
+
         if 'avatar' not in request.data or not request.data['avatar']:
             return Response({'avatar': ['This field is required.']}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -66,13 +66,13 @@ class CustomUserViewSet(UserViewSet):
     def subscriptions(self, request):
         subscribed_users = User.objects.filter(subscribers__user=request.user)
         page = self.paginate_queryset(subscribed_users)
-        
+
         if page:
             serializer = UserWithRecipesSerializer(
                 page, many=True, context={'request': request}
             )
             return self.get_paginated_response(serializer.data)
-        
+
         serializer = UserWithRecipesSerializer(
             subscribed_users, many=True, context={'request': request}
         )
@@ -82,40 +82,40 @@ class CustomUserViewSet(UserViewSet):
     def subscribe(self, request, id=None):
         user = request.user
         author = get_object_or_404(User, id=id)
-        
+
         if request.method == 'POST':
             if user == author:
                 return Response(
                     {'errors': 'You cannot subscribe to yourself'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
+
             subscription, created = Subscription.objects.get_or_create(
                 user=user, subscribed_to=author
             )
-            
+
             if not created:
                 return Response(
                     {'errors': 'You are already subscribed to this user'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
+
             serializer = UserWithRecipesSerializer(
                 author, context={'request': request}
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
+
         # DELETE method
         subscription = Subscription.objects.filter(
             user=user, subscribed_to=author
         )
-        
+
         if not subscription.exists():
             return Response(
                 {'errors': 'You are not subscribed to this user'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

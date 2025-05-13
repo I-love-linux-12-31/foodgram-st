@@ -60,10 +60,10 @@ class UserWithRecipesSerializer(CustomUserSerializer):
         request = self.context.get('request')
         recipes_limit = request.query_params.get('recipes_limit')
         recipes = obj.recipes.all()
-        
+
         if recipes_limit:
             recipes = recipes[:int(recipes_limit)]
-            
+
         return RecipeMinifiedSerializer(recipes, many=True, context=self.context).data
 
     def get_recipes_count(self, obj):
@@ -86,4 +86,4 @@ class SetPasswordSerializer(serializers.Serializer):
         user = self.context['request'].user
         if not user.check_password(value):
             raise serializers.ValidationError("Current password is incorrect")
-        return value 
+        return value

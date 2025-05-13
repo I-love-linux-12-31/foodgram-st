@@ -13,9 +13,10 @@ from recipe.models import Recipe, RecipeIngredient  # noqa: E402
 from ingredient.models import Ingredient  # noqa: E402
 from django.contrib.auth.hashers import make_password  # noqa: E402
 
+
 def create_test_data():
     print("Creating test data...")
-    
+
     # Create test users
     user1, created1 = User.objects.get_or_create(
         email='user1@example.com',
@@ -87,10 +88,10 @@ def create_test_data():
         'Мята': 'г',
         'Имбирь': 'г'
     }
-    
+
     for name, unit in ingredients.items():
         Ingredient.objects.get_or_create(name=name, measurement_unit=unit)
-    
+
     # Create recipes
     # 1. Hot Chocolate Recipe
     hot_chocolate, created_hc = Recipe.objects.get_or_create(
@@ -102,13 +103,13 @@ def create_test_data():
             'cooking_time': 15
         }
     )
-    
+
     if created_hc:
         # Add image
         image_path = Path('data/demo_image_hot_chocolate.jpg')
         with open(image_path, 'rb') as f:
             hot_chocolate.image.save('hot_chocolate.jpg', File(f), save=True)
-        
+
         # Add ingredients
         hot_chocolate_ingredients = {
             'Молоко': 200,
@@ -117,7 +118,7 @@ def create_test_data():
             'Сахар': 15,
             'Корица': 1
         }
-        
+
         for ing_name, amount in hot_chocolate_ingredients.items():
             ingredient = Ingredient.objects.get(name=ing_name)
             RecipeIngredient.objects.create(
@@ -125,11 +126,11 @@ def create_test_data():
                 ingredient=ingredient,
                 amount=amount
             )
-        
+
         print(f"Created recipe: {hot_chocolate.name}")
     else:
         print(f"Recipe '{hot_chocolate.name}' already exists")
-    
+
     # 2. Green Tea Recipe
     green_tea, created_gt = Recipe.objects.get_or_create(
         name='Зеленый чай',
@@ -140,13 +141,13 @@ def create_test_data():
             'cooking_time': 5
         }
     )
-    
+
     if created_gt:
         # Add image
         image_path = Path('data/demo_image_green_tea.jpg')
         with open(image_path, 'rb') as f:
             green_tea.image.save('green_tea.jpg', File(f), save=True)
-        
+
         # Add ingredients
         green_tea_ingredients = {
             'Зеленый чай': 5,
@@ -154,7 +155,7 @@ def create_test_data():
             'Мед': 1,
             'Мята': 3
         }
-        
+
         for ing_name, amount in green_tea_ingredients.items():
             ingredient = Ingredient.objects.get(name=ing_name)
             RecipeIngredient.objects.create(
@@ -162,11 +163,11 @@ def create_test_data():
                 ingredient=ingredient,
                 amount=amount
             )
-        
+
         print(f"Created recipe: {green_tea.name}")
     else:
         print(f"Recipe '{green_tea.name}' already exists")
-    
+
     # 3. Lemonade Recipe
     lemonade, created_lm = Recipe.objects.get_or_create(
         name='Лимонад',
@@ -177,13 +178,13 @@ def create_test_data():
             'cooking_time': 10
         }
     )
-    
+
     if created_lm:
         # Add image
         image_path = Path('data/demo_image_lemonade.jpg')
         with open(image_path, 'rb') as f:
             lemonade.image.save('lemonade.jpg', File(f), save=True)
-        
+
         # Add ingredients
         lemonade_ingredients = {
             'Лимон': 2,
@@ -192,7 +193,7 @@ def create_test_data():
             'Мята': 5,
             'Имбирь': 10
         }
-        
+
         for ing_name, amount in lemonade_ingredients.items():
             ingredient = Ingredient.objects.get(name=ing_name)
             RecipeIngredient.objects.create(
@@ -200,7 +201,7 @@ def create_test_data():
                 ingredient=ingredient,
                 amount=amount
             )
-        
+
         print(f"Created recipe: {lemonade.name}")
     else:
         print(f"Recipe '{lemonade.name}' already exists")
@@ -208,4 +209,4 @@ def create_test_data():
     print("Test data creation completed!")
 
 if __name__ == '__main__':
-    create_test_data() 
+    create_test_data()

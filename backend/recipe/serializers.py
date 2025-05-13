@@ -67,11 +67,11 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def validate_ingredients(self, value):
         if not value:
             raise serializers.ValidationError("You need to add at least one ingredient.")
-        
+
         ingredients_ids = [item['id'].id for item in value]
         if len(ingredients_ids) != len(set(ingredients_ids)):
             raise serializers.ValidationError("Ingredients must be unique.")
-        
+
         return value
 
     @transaction.atomic
@@ -80,7 +80,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         if ingredients_data is None or not ingredients_data:
             raise serializers.ValidationError({'ingredients': ['This field is required and cannot be empty.']})
         recipe = Recipe.objects.create(author=self.context['request'].user, **validated_data)
-        
+
         recipe_ingredients = [
             RecipeIngredient(
                 recipe=recipe,
@@ -88,7 +88,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 amount=ingredient_data['amount']
             ) for ingredient_data in ingredients_data
         ]
-        
+
         RecipeIngredient.objects.bulk_create(recipe_ingredients)
         return recipe
 
