@@ -16,11 +16,19 @@ services:
       - pg_data:/var/lib/postgresql/data
     networks:
       - app_network
+    restart: on-failure:3
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
   backend:
     image: yaroslavk1231/foodgram_st_backend:latest
     env_file: docker.env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - static:/static
     # ports:
@@ -28,6 +36,13 @@ services:
     #  # DEBUG
     networks:
       - app_network
+    restart: on-failure:2
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/health/" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
   gateway:
     image: yaroslavk1231/foodgram_st_gateway:latest
     env_file: docker.env
