@@ -17,4 +17,4 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
         if name:
             # Search for ingredients that start with the provided name
             queryset = queryset.filter(name__istartswith=name)
-        return queryset 
+        return queryset

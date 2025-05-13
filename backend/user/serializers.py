@@ -22,7 +22,14 @@ class Base64ImageField(serializers.ImageField):
 class CustomUserCreateSerializer(UserCreateSerializer):
     class Meta:
         model = User
-        fields = ('email', 'id', 'username', 'first_name', 'last_name', 'password')
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'password'
+        )
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -34,13 +41,24 @@ class CustomUserSerializer(UserSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed', 'avatar')
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'avatar'
+        )
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
             return False
-        return Subscription.objects.filter(user=request.user, subscribed_to=obj).exists()
+        return Subscription.objects.filter(
+            user=request.user,
+            subscribed_to=obj
+        ).exists()
 
 
 class RecipeMinifiedSerializer(serializers.ModelSerializer):
@@ -54,17 +72,24 @@ class UserWithRecipesSerializer(CustomUserSerializer):
     recipes_count = serializers.SerializerMethodField()
 
     class Meta(CustomUserSerializer.Meta):
-        fields = CustomUserSerializer.Meta.fields + ('recipes', 'recipes_count')
+        fields = CustomUserSerializer.Meta.fields + (
+            'recipes',
+            'recipes_count'
+        )
 
     def get_recipes(self, obj):
         request = self.context.get('request')
         recipes_limit = request.query_params.get('recipes_limit')
         recipes = obj.recipes.all()
-        
+
         if recipes_limit:
             recipes = recipes[:int(recipes_limit)]
-            
-        return RecipeMinifiedSerializer(recipes, many=True, context=self.context).data
+
+        return RecipeMinifiedSerializer(
+            recipes,
+            many=True,
+            context=self.context
+        ).data
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
@@ -86,4 +111,4 @@ class SetPasswordSerializer(serializers.Serializer):
         user = self.context['request'].user
         if not user.check_password(value):
             raise serializers.ValidationError("Current password is incorrect")
-        return value 
+        return value

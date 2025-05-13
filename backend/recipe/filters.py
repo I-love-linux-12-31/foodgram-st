@@ -5,7 +5,9 @@ from .models import Recipe
 
 class RecipeFilter(filters.FilterSet):
     is_favorited = filters.BooleanFilter(method='filter_is_favorited')
-    is_in_shopping_cart = filters.BooleanFilter(method='filter_is_in_shopping_cart')
+    is_in_shopping_cart = filters.BooleanFilter(
+        method='filter_is_in_shopping_cart'
+    )
     author = filters.NumberFilter(field_name='author__id')
 
     class Meta:

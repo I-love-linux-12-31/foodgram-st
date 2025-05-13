@@ -17,15 +17,15 @@ class RecipeAdmin(admin.ModelAdmin):
     list_filter = ('author', 'cooking_time')
     readonly_fields = ('get_favorites_count',)
     inlines = (RecipeIngredientInline,)
-    
+
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         queryset = queryset.annotate(favorites_count=Count('favorited_by'))
         return queryset
-    
+
     def get_favorites_count(self, obj):
         return obj.favorites_count
-    
+
     get_favorites_count.short_description = 'Favorites'
     get_favorites_count.admin_order_field = 'favorites_count'
 
@@ -34,4 +34,4 @@ class RecipeAdmin(admin.ModelAdmin):
 class RecipeIngredientAdmin(admin.ModelAdmin):
     list_display = ('recipe', 'ingredient', 'amount')
     search_fields = ('recipe__name', 'ingredient__name')
-    autocomplete_fields = ('recipe', 'ingredient') 
+    autocomplete_fields = ('recipe', 'ingredient')
