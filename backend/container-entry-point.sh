@@ -17,7 +17,7 @@ fi
 
 python3 load_ingredients.py && echo "Loading load_ingredients - OK" || echo "Loading load_ingredients - ERROR"
 
-if [ -z "$DEMO_DATA" ] || [ "$DEMO_DATA" -eq 1 ] ; then
+if [[ "${DEMO_DATA}" == "1" ]]; then
   python3 create_test_data.py && echo "Ok" || echo "ERROR"&& echo "Loading create_test_data - OK" || echo "Loading create_test_data - ERROR"
 fi
 
