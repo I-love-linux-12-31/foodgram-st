@@ -1,17 +1,15 @@
-from rest_framework import status, permissions
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.decorators import action
-from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
+from rest_framework import permissions, status
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from core.models import Subscription
-from .serializers import (
-    CustomUserSerializer, UserWithRecipesSerializer,
-    SetAvatarSerializer, SetPasswordSerializer
-)
+from .serializers import (CustomUserSerializer, SetAvatarSerializer,
+                          SetPasswordSerializer, UserWithRecipesSerializer)
 
 User = get_user_model()
 
@@ -21,7 +19,7 @@ class CustomUserViewSet(UserViewSet):
     serializer_class = CustomUserSerializer
 
     def get_permissions(self):
-        if self.action in ['retrieve', ]:  # 'me'
+        if self.action in ['retrieve', ]:
             return [AllowAny()]
         return super().get_permissions()
 
@@ -132,18 +130,16 @@ class CustomUserViewSet(UserViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         # DELETE method
-        subscription = Subscription.objects.filter(
+        if subscription := Subscription.objects.filter(
             user=user, subscribed_to=author
+        ):
+            subscription.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return Response(
+            {'errors': 'You are not subscribed to this user'},
+            status=status.HTTP_400_BAD_REQUEST
         )
-
-        if not subscription.exists():
-            return Response(
-                {'errors': 'You are not subscribed to this user'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        subscription.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UserAvatarView(APIView):
