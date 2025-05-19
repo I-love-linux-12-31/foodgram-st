@@ -1,13 +1,15 @@
+import os
 import random
-import string
 
-from rest_framework import serializers
 from django.db import transaction
+from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
 
-from .models import Recipe, RecipeIngredient
-from ingredient.models import Ingredient
-from user.serializers import CustomUserSerializer, Base64ImageField
+from .constants import SHORT_LINK_LETTERS
 from core.models import FavoriteRecipe, ShoppingCart, ShortLink
+from ingredient.models import Ingredient
+from user.serializers import CustomUserSerializer
+from .models import Recipe, RecipeIngredient
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
@@ -40,7 +42,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    image = Base64ImageField(read_only=True)
+    image = Base64ImageField(read_only=True, required=False)
 
     class Meta:
         model = Recipe
@@ -51,18 +53,18 @@ class RecipeListSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
-        if not request or request.user.is_anonymous:
-            return False
-        return FavoriteRecipe.objects.filter(
+        return not (
+            not request or request.user.is_anonymous
+        ) and FavoriteRecipe.objects.filter(
             user=request.user,
             recipe=obj
         ).exists()
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
-        if not request or request.user.is_anonymous:
-            return False
-        return ShoppingCart.objects.filter(
+        return not (
+            not request or request.user.is_anonymous
+        ) and ShoppingCart.objects.filter(
             user=request.user,
             recipe=obj
         ).exists()
@@ -70,11 +72,18 @@ class RecipeListSerializer(serializers.ModelSerializer):
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     ingredients = IngredientForRecipeSerializer(many=True)
-    image = Base64ImageField()
+    image = Base64ImageField(required=True)
 
     class Meta:
         model = Recipe
         fields = ('ingredients', 'name', 'text', 'cooking_time', 'image')
+
+    def validate_image(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                "Image field is required and cannot be empty."
+            )
+        return value
 
     def validate_ingredients(self, value):
         if not value:
@@ -87,6 +96,16 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Ingredients must be unique.")
 
         return value
+
+    @staticmethod
+    def recipe_ingredients_by_data(recipe, ingredients_data):
+        return [
+            RecipeIngredient(
+                recipe=recipe,
+                ingredient=ingredient_data['id'],
+                amount=ingredient_data['amount']
+            ) for ingredient_data in ingredients_data
+        ]
 
     @transaction.atomic
     def create(self, validated_data):
@@ -102,13 +121,10 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             author=self.context['request'].user, **validated_data
         )
 
-        recipe_ingredients = [
-            RecipeIngredient(
-                recipe=recipe,
-                ingredient=ingredient_data['id'],
-                amount=ingredient_data['amount']
-            ) for ingredient_data in ingredients_data
-        ]
+        recipe_ingredients = self.recipe_ingredients_by_data(
+            recipe,
+            ingredients_data
+        )
 
         RecipeIngredient.objects.bulk_create(recipe_ingredients)
         return recipe
@@ -124,18 +140,14 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 }
             )
         # Update recipe fields
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        super().update(instance, validated_data)
         instance.save()
         # Update ingredients if provided
         instance.recipe_ingredients.all().delete()
-        recipe_ingredients = [
-            RecipeIngredient(
-                recipe=instance,
-                ingredient=ingredient_data['id'],
-                amount=ingredient_data['amount']
-            ) for ingredient_data in ingredients_data
-        ]
+        recipe_ingredients = self.recipe_ingredients_by_data(
+            instance,
+            ingredients_data
+        )
         RecipeIngredient.objects.bulk_create(recipe_ingredients)
         return instance
 
@@ -156,18 +168,29 @@ class RecipeShortLinkSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('short-link',)
 
+    @staticmethod
+    def generate_short_link(recipe) -> ShortLink:
+        code = ''.join(
+            random.choices(SHORT_LINK_LETTERS, k=6)
+        )
+        return ShortLink.objects.create(recipe=recipe, short_code=code)
+
     def get_short_link(self, obj):
         request = self.context.get('request')
-        host = request.get_host() if request else 'foodgram.example.org'
+        host = request.get_host() if request else os.environ.get(
+            "DOMAIN_NAME", "127.0.0.1"
+        )
         protocol = 'https' if request and request.is_secure() else 'http'
         try:
             short_link = obj.short_link
         except ShortLink.DoesNotExist:
-            code = ''.join(
-                random.choices(string.ascii_letters + string.digits, k=6)
-            )
-            short_link = ShortLink.objects.create(recipe=obj, short_code=code)
+            short_link = self.generate_short_link(obj)
         return f"{protocol}://{host}/s/{short_link.short_code}"  # noqa: E231
+        # E231 missing whitespace after ':'
+        # EN: ':' is part of protocol definition.
+        # Links like "https: //example.com" are NOT valid.
+        # RU: ':' это часть объявления протокола.
+        # Ссылки вида "https: //example.com" НЕ корректны
 
     def to_representation(self, instance):
         return {'short-link': self.get_short_link(instance)}

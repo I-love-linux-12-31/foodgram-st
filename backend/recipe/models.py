@@ -1,8 +1,7 @@
-from django.db import models
 from django.core.validators import MinValueValidator
-
-from user.models import User
+from django.db import models
 from ingredient.models import Ingredient
+from user.models import User
 
 
 class Recipe(models.Model):
@@ -14,8 +13,10 @@ class Recipe(models.Model):
     name = models.CharField(max_length=256)
     text = models.TextField()
     image = models.ImageField(upload_to='recipes/images/')
-    cooking_time = models.PositiveIntegerField(
-        validators=[MinValueValidator(1)]
+    cooking_time = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(
+            1, message='Cooking time must be at least 1 minute'
+        )]
     )
     ingredients = models.ManyToManyField(
         Ingredient,
@@ -41,7 +42,11 @@ class RecipeIngredient(models.Model):
         on_delete=models.CASCADE,
         related_name='recipe_ingredients'
     )
-    amount = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    amount = models.PositiveIntegerField(
+        validators=[MinValueValidator(
+            1, message='Amount must be at least 1'
+        )]
+    )
 
     class Meta:
         constraints = [

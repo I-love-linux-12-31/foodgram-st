@@ -1,6 +1,7 @@
-import os
-import django
 import json
+import os
+
+import django
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 django.setup()
@@ -15,4 +16,4 @@ for item in data:
         name=item['name'],
         measurement_unit=item['measurement_unit']
     )
-print(f"Загружено {len(data)} ингредиентов.")
+print(f"Loaded {len(data)} ingredients.")

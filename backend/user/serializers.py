@@ -1,22 +1,10 @@
-from rest_framework import serializers
-from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
-import base64
-from django.core.files.base import ContentFile
+from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
 
 from core.models import Subscription
 from recipe.models import Recipe
-
-User = get_user_model()
-
-
-class Base64ImageField(serializers.ImageField):
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name=f'temp.{ext}')
-        return super().to_internal_value(data)
+from .models import User
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -37,7 +25,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
 class CustomUserSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField()
-    avatar = Base64ImageField(read_only=True)
+    avatar = Base64ImageField(read_only=True, required=False)
 
     class Meta:
         model = User
@@ -62,6 +50,8 @@ class CustomUserSerializer(UserSerializer):
 
 
 class RecipeMinifiedSerializer(serializers.ModelSerializer):
+    image = Base64ImageField(read_only=True, required=False)
+
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
@@ -96,11 +86,18 @@ class UserWithRecipesSerializer(CustomUserSerializer):
 
 
 class SetAvatarSerializer(serializers.ModelSerializer):
-    avatar = Base64ImageField()
+    avatar = Base64ImageField(required=True)
 
     class Meta:
         model = User
         fields = ('avatar',)
+
+    def validate_avatar(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                "Avatar field is required and cannot be empty."
+            )
+        return value
 
 
 class SetPasswordSerializer(serializers.Serializer):
@@ -110,5 +107,7 @@ class SetPasswordSerializer(serializers.Serializer):
     def validate_current_password(self, value):
         user = self.context['request'].user
         if not user.check_password(value):
-            raise serializers.ValidationError("Current password is incorrect")
+            raise serializers.ValidationError(
+                "Current password is incorrect"
+            )
         return value

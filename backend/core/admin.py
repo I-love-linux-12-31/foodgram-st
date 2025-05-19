@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Subscription, ShoppingCart, FavoriteRecipe, ShortLink
+
+from .models import FavoriteRecipe, ShoppingCart, ShortLink, Subscription
 
 
 @admin.register(Subscription)
