@@ -5,7 +5,6 @@ from recipe.models import Recipe
 from user.models import User
 
 
-
 class Subscription(models.Model):
     user = models.ForeignKey(
         User,
