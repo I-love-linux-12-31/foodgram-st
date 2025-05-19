@@ -9,7 +9,6 @@ if os.environ.get('DOTENV', False):
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-
 SECRET_KEY = os.environ.get('SECRET_KEY', hashlib.sha256(os.urandom(24)).hexdigest())
 
 DEBUG = os.environ.get('DEBUG', False)
@@ -22,7 +21,6 @@ ALLOWED_HOSTS = ["127.0.0.1",
                  f"{os.environ.get('DOMAIN_NAME', '127.0.0.1')}:8080",  # noqa: E231
                  f"{os.environ.get('EXTERNAL_IP')}:8080",  # noqa: E231
                  "127.0.0.1"]
-
 
 
 INSTALLED_APPS = [
@@ -76,7 +74,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 
 
-
 if os.environ.get("USE_SQLITE", False) and os.environ.get("USE_SQLITE") != "0":
     DATABASES = {
         'default': {
@@ -101,7 +98,6 @@ else:
     }
 
 
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -116,7 +112,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 
 LANGUAGE_CODE = 'en-us'
