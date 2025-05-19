@@ -1,26 +1,22 @@
-from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
+from core.models import FavoriteRecipe, ShoppingCart
 from django.db.models import Sum
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 
-from .models import Recipe, RecipeIngredient
-from .serializers import (
-    RecipeListSerializer, RecipeCreateUpdateSerializer,
-    RecipeMinifiedSerializer, RecipeShortLinkSerializer,
-)
 from .filters import RecipeFilter
+from .models import Recipe, RecipeIngredient
 from .permissions import IsAuthorOrReadOnly
-from core.models import FavoriteRecipe, ShoppingCart
+from .serializers import (RecipeCreateUpdateSerializer, RecipeListSerializer,
+                          RecipeMinifiedSerializer, RecipeShortLinkSerializer)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    # permission_classes = [IsAuthorOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
 
@@ -33,14 +29,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.action in ('create', 'update', 'partial_update'):
             return RecipeCreateUpdateSerializer
         return RecipeListSerializer
-
-    # @action(detail=True, methods=['get'])
-    # def get_link(self, request, pk=None):
-    #     recipe = self.get_object()
-    #     serializer = RecipeShortLinkSerializer(
-    #     recipe, context={'request': request}
-    #     )
-    #     return Response(serializer.data)
 
     @action(
         detail=True,
@@ -77,13 +65,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
             total_amount=Sum('amount')
         ).order_by('ingredient__name')
 
-        shopping_list = "Shopping List\n\n"
+        shopping_list_lines = ["Shopping List\n"]
+
         for item in ingredients:
-            shopping_list += (
+            shopping_list_lines.append(
                 f"{item['ingredient__name']} "
                 f"({item['ingredient__measurement_unit']}) - "
-                f"{item['total_amount']}\n"
+                f"{item['total_amount']}"
             )
+
+        shopping_list = "\n".join(shopping_list_lines)
 
         response = HttpResponse(shopping_list, content_type='text/plain')
         response[
