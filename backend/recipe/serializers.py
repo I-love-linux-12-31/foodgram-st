@@ -1,13 +1,14 @@
+import os
 import random
-import string
 
-from core.models import FavoriteRecipe, ShoppingCart, ShortLink
 from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
-from ingredient.models import Ingredient
 from rest_framework import serializers
-from user.serializers import CustomUserSerializer
 
+from .constants import SHORT_LINK_LETTERS
+from core.models import FavoriteRecipe, ShoppingCart, ShortLink
+from ingredient.models import Ingredient
+from user.serializers import CustomUserSerializer
 from .models import Recipe, RecipeIngredient
 
 
@@ -139,8 +140,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 }
             )
         # Update recipe fields
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        super().update(instance, validated_data)
         instance.save()
         # Update ingredients if provided
         instance.recipe_ingredients.all().delete()
@@ -168,18 +168,29 @@ class RecipeShortLinkSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('short-link',)
 
+    @staticmethod
+    def generate_short_link(recipe) -> ShortLink:
+        code = ''.join(
+            random.choices(SHORT_LINK_LETTERS, k=6)
+        )
+        return ShortLink.objects.create(recipe=recipe, short_code=code)
+
     def get_short_link(self, obj):
         request = self.context.get('request')
-        host = request.get_host() if request else 'foodgram.example.org'
+        host = request.get_host() if request else os.environ.get(
+            "DOMAIN_NAME", "127.0.0.1"
+        )
         protocol = 'https' if request and request.is_secure() else 'http'
         try:
             short_link = obj.short_link
         except ShortLink.DoesNotExist:
-            code = ''.join(
-                random.choices(string.ascii_letters + string.digits, k=6)
-            )
-            short_link = ShortLink.objects.create(recipe=obj, short_code=code)
+            short_link = self.generate_short_link(obj)
         return f"{protocol}://{host}/s/{short_link.short_code}"  # noqa: E231
+        # E231 missing whitespace after ':'
+        # EN: ':' is part of protocol definition.
+        # Links like "https: //example.com" are NOT valid.
+        # RU: ':' это часть объявления протокола.
+        # Ссылки вида "https: //example.com" НЕ корректны
 
     def to_representation(self, instance):
         return {'short-link': self.get_short_link(instance)}
