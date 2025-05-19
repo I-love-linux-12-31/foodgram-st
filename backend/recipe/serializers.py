@@ -1,13 +1,14 @@
 import random
 import string
 
-from rest_framework import serializers
+from core.models import FavoriteRecipe, ShoppingCart, ShortLink
 from django.db import transaction
+from drf_extra_fields.fields import Base64ImageField
+from ingredient.models import Ingredient
+from rest_framework import serializers
+from user.serializers import CustomUserSerializer
 
 from .models import Recipe, RecipeIngredient
-from ingredient.models import Ingredient
-from user.serializers import CustomUserSerializer, Base64ImageField
-from core.models import FavoriteRecipe, ShoppingCart, ShortLink
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
@@ -40,7 +41,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    image = Base64ImageField(read_only=True)
+    image = Base64ImageField(read_only=True, required=False)
 
     class Meta:
         model = Recipe
@@ -51,18 +52,18 @@ class RecipeListSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
-        if not request or request.user.is_anonymous:
-            return False
-        return FavoriteRecipe.objects.filter(
+        return not (
+            not request or request.user.is_anonymous
+        ) and FavoriteRecipe.objects.filter(
             user=request.user,
             recipe=obj
         ).exists()
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
-        if not request or request.user.is_anonymous:
-            return False
-        return ShoppingCart.objects.filter(
+        return not (
+            not request or request.user.is_anonymous
+        ) and ShoppingCart.objects.filter(
             user=request.user,
             recipe=obj
         ).exists()
@@ -70,11 +71,18 @@ class RecipeListSerializer(serializers.ModelSerializer):
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     ingredients = IngredientForRecipeSerializer(many=True)
-    image = Base64ImageField()
+    image = Base64ImageField(required=True)
 
     class Meta:
         model = Recipe
         fields = ('ingredients', 'name', 'text', 'cooking_time', 'image')
+
+    def validate_image(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                "Image field is required and cannot be empty."
+            )
+        return value
 
     def validate_ingredients(self, value):
         if not value:
@@ -87,6 +95,16 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Ingredients must be unique.")
 
         return value
+
+    @staticmethod
+    def recipe_ingredients_by_data(recipe, ingredients_data):
+        return [
+            RecipeIngredient(
+                recipe=recipe,
+                ingredient=ingredient_data['id'],
+                amount=ingredient_data['amount']
+            ) for ingredient_data in ingredients_data
+        ]
 
     @transaction.atomic
     def create(self, validated_data):
@@ -102,13 +120,10 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             author=self.context['request'].user, **validated_data
         )
 
-        recipe_ingredients = [
-            RecipeIngredient(
-                recipe=recipe,
-                ingredient=ingredient_data['id'],
-                amount=ingredient_data['amount']
-            ) for ingredient_data in ingredients_data
-        ]
+        recipe_ingredients = self.recipe_ingredients_by_data(
+            recipe,
+            ingredients_data
+        )
 
         RecipeIngredient.objects.bulk_create(recipe_ingredients)
         return recipe
@@ -129,13 +144,10 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         instance.save()
         # Update ingredients if provided
         instance.recipe_ingredients.all().delete()
-        recipe_ingredients = [
-            RecipeIngredient(
-                recipe=instance,
-                ingredient=ingredient_data['id'],
-                amount=ingredient_data['amount']
-            ) for ingredient_data in ingredients_data
-        ]
+        recipe_ingredients = self.recipe_ingredients_by_data(
+            instance,
+            ingredients_data
+        )
         RecipeIngredient.objects.bulk_create(recipe_ingredients)
         return instance
 
