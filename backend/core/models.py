@@ -1,8 +1,9 @@
 from django.db import models
 
-from user.models import User
-# from ..ingredient.models import Ingredient #
+from .constants import SHORT_LINK_CODE_MAX_LENGTH
 from recipe.models import Recipe
+from user.models import User
+
 
 
 class Subscription(models.Model):
@@ -83,13 +84,6 @@ class FavoriteRecipe(models.Model):
     def __str__(self):
         return f"{self.recipe.name} favorited by {self.user.username}"
 
-# class Token(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     token = models.CharField(max_length=255)
-#
-#     def __str__(self):
-#         return f'Token {self.token} for {self.user.username}'
-
 
 class ShortLink(models.Model):
     recipe = models.OneToOneField(
@@ -97,7 +91,10 @@ class ShortLink(models.Model):
         on_delete=models.CASCADE,
         related_name='short_link'
     )
-    short_code = models.CharField(max_length=10, unique=True)
+    short_code = models.CharField(
+        max_length=SHORT_LINK_CODE_MAX_LENGTH,
+        unique=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
