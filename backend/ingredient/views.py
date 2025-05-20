@@ -11,4 +11,6 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     pagination_class = None
     permission_classes = [AllowAny]
-    filter_backends = [IngredientFilter, ]
+    filter_backends = [
+        IngredientFilter,
+    ]
