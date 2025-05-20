@@ -28,14 +28,18 @@ class CustomUserViewSet(UserViewSet):
         return super().get_permissions()
 
     @action(
-        detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated]
+        detail=False,
+        methods=["get"],
+        permission_classes=[permissions.IsAuthenticated],
     )
     def me(self, request):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
     @action(
-        detail=False, methods=["post"], permission_classes=[permissions.IsAuthenticated]
+        detail=False,
+        methods=["post"],
+        permission_classes=[permissions.IsAuthenticated],
     )
     def set_password(self, request):
         serializer = SetPasswordSerializer(
@@ -67,7 +71,10 @@ class CustomUserViewSet(UserViewSet):
             )
 
         serializer = SetAvatarSerializer(
-            request.user, data=request.data, partial=True, context={"request": request}
+            request.user,
+            data=request.data,
+            partial=True,
+            context={"request": request},
         )
         if serializer.is_valid():
             serializer.save()
@@ -75,7 +82,9 @@ class CustomUserViewSet(UserViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(
-        detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated]
+        detail=False,
+        methods=["get"],
+        permission_classes=[permissions.IsAuthenticated],
     )
     def subscriptions(self, request):
         subscribed_users = User.objects.filter(subscribers__user=request.user)
@@ -118,11 +127,15 @@ class CustomUserViewSet(UserViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            serializer = UserWithRecipesSerializer(author, context={"request": request})
+            serializer = UserWithRecipesSerializer(
+                author, context={"request": request}
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         # DELETE method
-        if subscription := Subscription.objects.filter(user=user, subscribed_to=author):
+        if subscription := Subscription.objects.filter(
+            user=user, subscribed_to=author
+        ):
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -143,7 +156,10 @@ class UserAvatarView(APIView):
             )
 
         serializer = SetAvatarSerializer(
-            request.user, data=request.data, partial=True, context={"request": request}
+            request.user,
+            data=request.data,
+            partial=True,
+            context={"request": request},
         )
         if serializer.is_valid():
             serializer.save()

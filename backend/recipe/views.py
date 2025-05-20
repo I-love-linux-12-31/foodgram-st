@@ -40,7 +40,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated],
     )
     def favorite(self, request, pk=None):
-        return self._add_or_remove_recipe(request, pk, FavoriteRecipe, "favorite")
+        return self._add_or_remove_recipe(
+            request, pk, FavoriteRecipe, "favorite"
+        )
 
     @action(
         detail=True,
@@ -48,10 +50,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated],
     )
     def shopping_cart(self, request, pk=None):
-        return self._add_or_remove_recipe(request, pk, ShoppingCart, "shopping cart")
+        return self._add_or_remove_recipe(
+            request, pk, ShoppingCart, "shopping cart"
+        )
 
     @action(
-        detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated]
+        detail=False,
+        methods=["get"],
+        permission_classes=[permissions.IsAuthenticated],
     )
     def download_shopping_cart(self, request):
         """Download shopping cart as a text file."""
@@ -76,7 +82,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         shopping_list = "\n".join(shopping_list_lines)
 
         response = HttpResponse(shopping_list, content_type="text/plain")
-        response["Content-Disposition"] = 'attachment; filename="shopping_list.txt"'
+        response["Content-Disposition"] = (
+            'attachment; filename="shopping_list.txt"'
+        )
         return response
 
     def _add_or_remove_recipe(self, request, pk, model_class, list_name):
@@ -84,7 +92,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
 
         if request.method == "POST":
-            _, created = model_class.objects.get_or_create(user=user, recipe=recipe)
+            _, created = model_class.objects.get_or_create(
+                user=user, recipe=recipe
+            )
             if not created:
                 return Response(
                     {"errors": f"Recipe is already in your {list_name}"},
@@ -106,5 +116,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"], url_path="get-link")
     def get_link(self, request, pk=None):
         recipe = self.get_object()
-        serializer = RecipeShortLinkSerializer(recipe, context={"request": request})
+        serializer = RecipeShortLinkSerializer(
+            recipe, context={"request": request}
+        )
         return Response(serializer.data)

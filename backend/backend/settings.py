@@ -10,7 +10,9 @@ if os.environ.get("DOTENV", False):
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-SECRET_KEY = os.environ.get("SECRET_KEY", hashlib.sha256(os.urandom(24)).hexdigest())
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY", hashlib.sha256(os.urandom(24)).hexdigest()
+)
 
 DEBUG = os.environ.get("DEBUG", False)
 

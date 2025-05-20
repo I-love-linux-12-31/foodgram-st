@@ -7,16 +7,22 @@ from user.models import User
 
 
 class Recipe(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="recipes")
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="recipes"
+    )
     name = models.CharField(max_length=MAX_RECIPE_NAME_LENGTH)
     text = models.TextField()
     image = models.ImageField(upload_to="recipes/images/")
     cooking_time = models.PositiveSmallIntegerField(
         validators=[
-            MinValueValidator(1, message="Cooking time must be at least 1 minute")
+            MinValueValidator(
+                1, message="Cooking time must be at least 1 minute"
+            )
         ]
     )
-    ingredients = models.ManyToManyField(Ingredient, through="RecipeIngredient")
+    ingredients = models.ManyToManyField(
+        Ingredient, through="RecipeIngredient"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -40,7 +46,8 @@ class RecipeIngredient(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["recipe", "ingredient"], name="unique_recipe_ingredient"
+                fields=["recipe", "ingredient"],
+                name="unique_recipe_ingredient",
             )
         ]
 

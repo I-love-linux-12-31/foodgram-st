@@ -73,7 +73,8 @@ class Migration(migrations.Migration):
                 "ordering": ["-created_at"],
                 "constraints": [
                     models.UniqueConstraint(
-                        fields=("user", "recipe"), name="unique_favorite_recipe"
+                        fields=("user", "recipe"),
+                        name="unique_favorite_recipe",
                     )
                 ],
             },
@@ -112,7 +113,8 @@ class Migration(migrations.Migration):
                 "ordering": ["-created_at"],
                 "constraints": [
                     models.UniqueConstraint(
-                        fields=("user", "recipe"), name="unique_shopping_cart_recipe"
+                        fields=("user", "recipe"),
+                        name="unique_shopping_cart_recipe",
                     )
                 ],
             },
@@ -151,7 +153,8 @@ class Migration(migrations.Migration):
                 "ordering": ["-created_at"],
                 "constraints": [
                     models.UniqueConstraint(
-                        fields=("user", "subscribed_to"), name="unique_subscription"
+                        fields=("user", "subscribed_to"),
+                        name="unique_subscription",
                     )
                 ],
             },

@@ -10,7 +10,14 @@ from .models import User
 class CustomUserCreateSerializer(UserCreateSerializer):
     class Meta:
         model = User
-        fields = ("email", "id", "username", "first_name", "last_name", "password")
+        fields = (
+            "email",
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "password",
+        )
         extra_kwargs = {"password": {"write_only": True}}
 
 
@@ -52,7 +59,10 @@ class UserWithRecipesSerializer(CustomUserSerializer):
     recipes_count = serializers.SerializerMethodField()
 
     class Meta(CustomUserSerializer.Meta):
-        fields = CustomUserSerializer.Meta.fields + ("recipes", "recipes_count")
+        fields = CustomUserSerializer.Meta.fields + (
+            "recipes",
+            "recipes_count",
+        )
 
     def get_recipes(self, obj):
         request = self.context.get("request")
@@ -62,7 +72,9 @@ class UserWithRecipesSerializer(CustomUserSerializer):
         if recipes_limit:
             recipes = recipes[: int(recipes_limit)]
 
-        return RecipeMinifiedSerializer(recipes, many=True, context=self.context).data
+        return RecipeMinifiedSerializer(
+            recipes, many=True, context=self.context
+        ).data
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()

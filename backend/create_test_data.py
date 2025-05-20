@@ -151,7 +151,12 @@ def create_test_data():
             green_tea.image.save("green_tea.jpg", File(f), save=True)
 
         # Add ingredients
-        green_tea_ingredients = {"Зеленый чай": 5, "Вода": 250, "Мед": 1, "Мята": 3}
+        green_tea_ingredients = {
+            "Зеленый чай": 5,
+            "Вода": 250,
+            "Мед": 1,
+            "Мята": 3,
+        }
 
         for ing_name, amount in green_tea_ingredients.items():
             ingredient = Ingredient.objects.get(name=ing_name)

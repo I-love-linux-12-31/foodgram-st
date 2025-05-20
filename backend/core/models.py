@@ -23,7 +23,10 @@ class Subscription(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"{self.user.username} subscribed to" f" {self.subscribed_to.username}"
+        return (
+            f"{self.user.username} subscribed to"
+            f" {self.subscribed_to.username}"
+        )
 
 
 class ShoppingCart(models.Model):
@@ -48,7 +51,9 @@ class ShoppingCart(models.Model):
 
 
 class FavoriteRecipe(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="favorites")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="favorites"
+    )
     recipe = models.ForeignKey(
         Recipe, on_delete=models.CASCADE, related_name="favorited_by"
     )
@@ -70,7 +75,9 @@ class ShortLink(models.Model):
     recipe = models.OneToOneField(
         Recipe, on_delete=models.CASCADE, related_name="short_link"
     )
-    short_code = models.CharField(max_length=SHORT_LINK_CODE_MAX_LENGTH, unique=True)
+    short_code = models.CharField(
+        max_length=SHORT_LINK_CODE_MAX_LENGTH, unique=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
