@@ -1,5 +1,7 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+
+from .constants import MAX_RECIPE_NAME_LENGTH
 from ingredient.models import Ingredient
 from user.models import User
 
@@ -10,7 +12,7 @@ class Recipe(models.Model):
         on_delete=models.CASCADE,
         related_name='recipes'
     )
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=MAX_RECIPE_NAME_LENGTH)
     text = models.TextField()
     image = models.ImageField(upload_to='recipes/images/')
     cooking_time = models.PositiveSmallIntegerField(
