@@ -14,15 +14,15 @@ from .views import health
 
 # DRF API Router
 router = DefaultRouter()
-router.register('users', CustomUserViewSet, basename='users')
-router.register('recipes', RecipeViewSet, basename='recipes')
-router.register('ingredients', IngredientViewSet, basename='ingredients')
+router.register("users", CustomUserViewSet, basename="users")
+router.register("recipes", RecipeViewSet, basename="recipes")
+router.register("ingredients", IngredientViewSet, basename="ingredients")
 
 # Schema view for Swagger documentation
 schema_view = get_schema_view(
     openapi.Info(
         title="Foodgram API",
-        default_version='v1',
+        default_version="v1",
         description="API for Foodgram project",
     ),
     public=True,
@@ -30,29 +30,22 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
-    path('api/auth/', include('djoser.urls.authtoken')),
-
+    path("admin/", admin.site.urls),
+    path("api/", include(router.urls)),
+    path("api/auth/", include("djoser.urls.authtoken")),
     # Documentation URLs
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0),
-         name='schema-swagger-ui'),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0),
-         name='schema-redoc'),
-
-    path('api/users/me/avatar/', UserAvatarView.as_view(), name='user-avatar'),
-
-    path('api/health/', health, name='health-check'),
+    path(
+        "swagger/",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
+    ),
+    path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
+    path("api/users/me/avatar/", UserAvatarView.as_view(), name="user-avatar"),
+    path("api/health/", health, name="health-check"),
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(
-        settings.MEDIA_URL,
-        document_root=settings.MEDIA_ROOT
-    )
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
-    urlpatterns += static(
-        settings.STATIC_URL,
-        document_root=settings.STATIC_ROOT
-    )
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

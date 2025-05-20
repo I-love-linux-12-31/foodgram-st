@@ -5,7 +5,7 @@ import django
 from django.core.files import File
 
 # Setup Django environment
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 django.setup()
 
 # Import models
@@ -20,55 +20,55 @@ def create_test_data():
 
     # Create test users
     user1, created1 = User.objects.get_or_create(
-        email='user1@example.com',
+        email="user1@example.com",
         defaults={
-            'username': 'admin_user',
-            'first_name': 'Admin',
-            'last_name': 'User',
-            'password': make_password('password123'),
-            'is_staff': True,
-            'is_superuser': True
-        }
+            "username": "admin_user",
+            "first_name": "Admin",
+            "last_name": "User",
+            "password": make_password("password123"),
+            "is_staff": True,
+            "is_superuser": True,
+        },
     )
     if created1:
         # Add avatar to user1
-        avatar_path = Path('data/demo_avatar_1.png')
-        with open(avatar_path, 'rb') as f:
-            user1.avatar.save('demo_avatar_1.jpg', File(f), save=True)
+        avatar_path = Path("data/demo_avatar_1.png")
+        with open(avatar_path, "rb") as f:
+            user1.avatar.save("demo_avatar_1.jpg", File(f), save=True)
         print(f"Created administrator user: {user1.email}")
     else:
         print(f"User {user1.email} already exists")
 
     user2, created2 = User.objects.get_or_create(
-        email='user2@example.com',
+        email="user2@example.com",
         defaults={
-            'username': 'regular_user',
-            'first_name': 'Regular',
-            'last_name': 'User',
-            'password': make_password('password123'),
-            'is_staff': False,
-            'is_superuser': False
-        }
+            "username": "regular_user",
+            "first_name": "Regular",
+            "last_name": "User",
+            "password": make_password("password123"),
+            "is_staff": False,
+            "is_superuser": False,
+        },
     )
     if created2:
         # Add avatar to user2
-        avatar_path = Path('data/demo_avatar_2.png')
-        with open(avatar_path, 'rb') as f:
-            user2.avatar.save('demo_avatar_2.png', File(f), save=True)
+        avatar_path = Path("data/demo_avatar_2.png")
+        with open(avatar_path, "rb") as f:
+            user2.avatar.save("demo_avatar_2.png", File(f), save=True)
         print(f"Created regular user: {user2.email}")
     else:
         print(f"User {user2.email} already exists")
 
     user3, created3 = User.objects.get_or_create(
-        email='user3@example.com',
+        email="user3@example.com",
         defaults={
-            'username': 'no_avatar_user',
-            'first_name': 'No',
-            'last_name': 'Avatar',
-            'password': make_password('password123'),
-            'is_staff': False,
-            'is_superuser': False
-        }
+            "username": "no_avatar_user",
+            "first_name": "No",
+            "last_name": "Avatar",
+            "password": make_password("password123"),
+            "is_staff": False,
+            "is_superuser": False,
+        },
     )
     if created3:
         print(f"Created regular user without avatar: {user3.email}")
@@ -77,17 +77,17 @@ def create_test_data():
 
     # Make sure we have some basic ingredients
     ingredients = {
-        'Молоко': 'мл',
-        'Сахар': 'г',
-        'Шоколад': 'г',
-        'Какао': 'г',
-        'Корица': 'щепотка',
-        'Зеленый чай': 'г',
-        'Лимон': 'шт',
-        'Вода': 'мл',
-        'Мед': 'ст. л.',
-        'Мята': 'г',
-        'Имбирь': 'г'
+        "Молоко": "мл",
+        "Сахар": "г",
+        "Шоколад": "г",
+        "Какао": "г",
+        "Корица": "щепотка",
+        "Зеленый чай": "г",
+        "Лимон": "шт",
+        "Вода": "мл",
+        "Мед": "ст. л.",
+        "Мята": "г",
+        "Имбирь": "г",
     }
 
     for name, unit in ingredients.items():
@@ -96,38 +96,36 @@ def create_test_data():
     # Create recipes
     # 1. Hot Chocolate Recipe
     hot_chocolate, created_hc = Recipe.objects.get_or_create(
-        name='Горячий шоколад',
+        name="Горячий шоколад",
         defaults={
-            'author': user1,
-            'text': 'Вкуснейший горячий шоколад с корицей - '
-                    'идеальный напиток для холодного вечера. '
-                    'Приготовьте напиток,'
-                    ' который согреет вас в непогоду и поднимет настроение.',
-            'cooking_time': 15
-        }
+            "author": user1,
+            "text": "Вкуснейший горячий шоколад с корицей - "
+            "идеальный напиток для холодного вечера. "
+            "Приготовьте напиток,"
+            " который согреет вас в непогоду и поднимет настроение.",
+            "cooking_time": 15,
+        },
     )
 
     if created_hc:
         # Add image
-        image_path = Path('data/demo_image_hot_chocolate.jpg')
-        with open(image_path, 'rb') as f:
-            hot_chocolate.image.save('hot_chocolate.jpg', File(f), save=True)
+        image_path = Path("data/demo_image_hot_chocolate.jpg")
+        with open(image_path, "rb") as f:
+            hot_chocolate.image.save("hot_chocolate.jpg", File(f), save=True)
 
         # Add ingredients
         hot_chocolate_ingredients = {
-            'Молоко': 200,
-            'Шоколад': 50,
-            'Какао': 20,
-            'Сахар': 15,
-            'Корица': 1
+            "Молоко": 200,
+            "Шоколад": 50,
+            "Какао": 20,
+            "Сахар": 15,
+            "Корица": 1,
         }
 
         for ing_name, amount in hot_chocolate_ingredients.items():
             ingredient = Ingredient.objects.get(name=ing_name)
             RecipeIngredient.objects.create(
-                recipe=hot_chocolate,
-                ingredient=ingredient,
-                amount=amount
+                recipe=hot_chocolate, ingredient=ingredient, amount=amount
             )
 
         print(f"Created recipe: {hot_chocolate.name}")
@@ -136,36 +134,29 @@ def create_test_data():
 
     # 2. Green Tea Recipe
     green_tea, created_gt = Recipe.objects.get_or_create(
-        name='Зеленый чай',
+        name="Зеленый чай",
         defaults={
-            'author': user2,
-            'text': 'Освежающий зеленый чай с мятой и медом.'
-                    ' Этот чай не только вкусный, но и очень полезный.'
-                    ' Богат антиоксидантами и поможет взбодриться.',
-            'cooking_time': 5
-        }
+            "author": user2,
+            "text": "Освежающий зеленый чай с мятой и медом."
+            " Этот чай не только вкусный, но и очень полезный."
+            " Богат антиоксидантами и поможет взбодриться.",
+            "cooking_time": 5,
+        },
     )
 
     if created_gt:
         # Add image
-        image_path = Path('data/demo_image_green_tea.jpg')
-        with open(image_path, 'rb') as f:
-            green_tea.image.save('green_tea.jpg', File(f), save=True)
+        image_path = Path("data/demo_image_green_tea.jpg")
+        with open(image_path, "rb") as f:
+            green_tea.image.save("green_tea.jpg", File(f), save=True)
 
         # Add ingredients
-        green_tea_ingredients = {
-            'Зеленый чай': 5,
-            'Вода': 250,
-            'Мед': 1,
-            'Мята': 3
-        }
+        green_tea_ingredients = {"Зеленый чай": 5, "Вода": 250, "Мед": 1, "Мята": 3}
 
         for ing_name, amount in green_tea_ingredients.items():
             ingredient = Ingredient.objects.get(name=ing_name)
             RecipeIngredient.objects.create(
-                recipe=green_tea,
-                ingredient=ingredient,
-                amount=amount
+                recipe=green_tea, ingredient=ingredient, amount=amount
             )
 
         print(f"Created recipe: {green_tea.name}")
@@ -174,37 +165,35 @@ def create_test_data():
 
     # 3. Lemonade Recipe
     lemonade, created_lm = Recipe.objects.get_or_create(
-        name='Лимонад',
+        name="Лимонад",
         defaults={
-            'author': user3,
-            'text': 'Классический домашний лимонад с имбирем и мятой. '
-                    'Идеальный напиток для жарких летних дней. '
-                    'Освежающий, кисло-сладкий и очень вкусный!',
-            'cooking_time': 10
-        }
+            "author": user3,
+            "text": "Классический домашний лимонад с имбирем и мятой. "
+            "Идеальный напиток для жарких летних дней. "
+            "Освежающий, кисло-сладкий и очень вкусный!",
+            "cooking_time": 10,
+        },
     )
 
     if created_lm:
         # Add image
-        image_path = Path('data/demo_image_lemonade.jpg')
-        with open(image_path, 'rb') as f:
-            lemonade.image.save('lemonade.jpg', File(f), save=True)
+        image_path = Path("data/demo_image_lemonade.jpg")
+        with open(image_path, "rb") as f:
+            lemonade.image.save("lemonade.jpg", File(f), save=True)
 
         # Add ingredients
         lemonade_ingredients = {
-            'Лимон': 2,
-            'Вода': 500,
-            'Сахар': 50,
-            'Мята': 5,
-            'Имбирь': 10
+            "Лимон": 2,
+            "Вода": 500,
+            "Сахар": 50,
+            "Мята": 5,
+            "Имбирь": 10,
         }
 
         for ing_name, amount in lemonade_ingredients.items():
             ingredient = Ingredient.objects.get(name=ing_name)
             RecipeIngredient.objects.create(
-                recipe=lemonade,
-                ingredient=ingredient,
-                amount=amount
+                recipe=lemonade, ingredient=ingredient, amount=amount
             )
 
         print(f"Created recipe: {lemonade.name}")
@@ -214,5 +203,5 @@ def create_test_data():
     print("Test data creation completed!")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     create_test_data()

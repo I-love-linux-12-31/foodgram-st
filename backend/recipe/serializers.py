@@ -13,15 +13,13 @@ from .models import Recipe, RecipeIngredient
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField(source='ingredient.id')
-    name = serializers.ReadOnlyField(source='ingredient.name')
-    measurement_unit = serializers.ReadOnlyField(
-        source='ingredient.measurement_unit'
-    )
+    id = serializers.ReadOnlyField(source="ingredient.id")
+    name = serializers.ReadOnlyField(source="ingredient.name")
+    measurement_unit = serializers.ReadOnlyField(source="ingredient.measurement_unit")
 
     class Meta:
         model = RecipeIngredient
-        fields = ('id', 'name', 'measurement_unit', 'amount')
+        fields = ("id", "name", "measurement_unit", "amount")
 
 
 class IngredientForRecipeSerializer(serializers.ModelSerializer):
@@ -30,15 +28,13 @@ class IngredientForRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeIngredient
-        fields = ('id', 'amount')
+        fields = ("id", "amount")
 
 
 class RecipeListSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
     ingredients = IngredientInRecipeSerializer(
-        source='recipe_ingredients',
-        many=True,
-        read_only=True
+        source="recipe_ingredients", many=True, read_only=True
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
@@ -47,27 +43,30 @@ class RecipeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
-            'id', 'author', 'ingredients', 'is_favorited',
-            'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time'
+            "id",
+            "author",
+            "ingredients",
+            "is_favorited",
+            "is_in_shopping_cart",
+            "name",
+            "image",
+            "text",
+            "cooking_time",
         )
 
     def get_is_favorited(self, obj):
-        request = self.context.get('request')
-        return not (
-            not request or request.user.is_anonymous
-        ) and FavoriteRecipe.objects.filter(
-            user=request.user,
-            recipe=obj
-        ).exists()
+        request = self.context.get("request")
+        return (
+            not (not request or request.user.is_anonymous)
+            and FavoriteRecipe.objects.filter(user=request.user, recipe=obj).exists()
+        )
 
     def get_is_in_shopping_cart(self, obj):
-        request = self.context.get('request')
-        return not (
-            not request or request.user.is_anonymous
-        ) and ShoppingCart.objects.filter(
-            user=request.user,
-            recipe=obj
-        ).exists()
+        request = self.context.get("request")
+        return (
+            not (not request or request.user.is_anonymous)
+            and ShoppingCart.objects.filter(user=request.user, recipe=obj).exists()
+        )
 
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
@@ -76,7 +75,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('ingredients', 'name', 'text', 'cooking_time', 'image')
+        fields = ("ingredients", "name", "text", "cooking_time", "image")
 
     def validate_image(self, value):
         if not value:
@@ -91,7 +90,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
                 "You need to add at least one ingredient."
             )
 
-        ingredients_ids = [item['id'].id for item in value]
+        ingredients_ids = [item["id"].id for item in value]
         if len(ingredients_ids) != len(set(ingredients_ids)):
             raise serializers.ValidationError("Ingredients must be unique.")
 
@@ -102,52 +101,41 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         return [
             RecipeIngredient(
                 recipe=recipe,
-                ingredient=ingredient_data['id'],
-                amount=ingredient_data['amount']
-            ) for ingredient_data in ingredients_data
+                ingredient=ingredient_data["id"],
+                amount=ingredient_data["amount"],
+            )
+            for ingredient_data in ingredients_data
         ]
 
     @transaction.atomic
     def create(self, validated_data):
-        ingredients_data = validated_data.pop('ingredients', None)
+        ingredients_data = validated_data.pop("ingredients", None)
         if ingredients_data is None or not ingredients_data:
             raise serializers.ValidationError(
-                {'ingredients': [
-                    'This field is required and cannot be empty.'
-                ]
-                }
+                {"ingredients": ["This field is required and cannot be empty."]}
             )
         recipe = Recipe.objects.create(
-            author=self.context['request'].user, **validated_data
+            author=self.context["request"].user, **validated_data
         )
 
-        recipe_ingredients = self.recipe_ingredients_by_data(
-            recipe,
-            ingredients_data
-        )
+        recipe_ingredients = self.recipe_ingredients_by_data(recipe, ingredients_data)
 
         RecipeIngredient.objects.bulk_create(recipe_ingredients)
         return recipe
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        ingredients_data = validated_data.pop('ingredients', None)
+        ingredients_data = validated_data.pop("ingredients", None)
         if ingredients_data is None or not ingredients_data:
             raise serializers.ValidationError(
-                {'ingredients': [
-                    'This field is required and cannot be empty.'
-                ]
-                }
+                {"ingredients": ["This field is required and cannot be empty."]}
             )
         # Update recipe fields
         super().update(instance, validated_data)
         instance.save()
         # Update ingredients if provided
         instance.recipe_ingredients.all().delete()
-        recipe_ingredients = self.recipe_ingredients_by_data(
-            instance,
-            ingredients_data
-        )
+        recipe_ingredients = self.recipe_ingredients_by_data(instance, ingredients_data)
         RecipeIngredient.objects.bulk_create(recipe_ingredients)
         return instance
 
@@ -158,7 +146,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 class RecipeMinifiedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
+        fields = ("id", "name", "image", "cooking_time")
 
 
 class RecipeShortLinkSerializer(serializers.ModelSerializer):
@@ -166,21 +154,21 @@ class RecipeShortLinkSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('short-link',)
+        fields = ("short-link",)
 
     @staticmethod
     def generate_short_link(recipe) -> ShortLink:
-        code = ''.join(
-            random.choices(SHORT_LINK_LETTERS, k=6)
-        )
+        code = "".join(random.choices(SHORT_LINK_LETTERS, k=6))
         return ShortLink.objects.create(recipe=recipe, short_code=code)
 
     def get_short_link(self, obj):
-        request = self.context.get('request')
-        host = request.get_host() if request else os.environ.get(
-            "DOMAIN_NAME", "127.0.0.1"
+        request = self.context.get("request")
+        host = (
+            request.get_host()
+            if request
+            else os.environ.get("DOMAIN_NAME", "127.0.0.1")
         )
-        protocol = 'https' if request and request.is_secure() else 'http'
+        protocol = "https" if request and request.is_secure() else "http"
         try:
             short_link = obj.short_link
         except ShortLink.DoesNotExist:
@@ -193,4 +181,4 @@ class RecipeShortLinkSerializer(serializers.ModelSerializer):
         # Ссылки вида "https: //example.com" НЕ корректны
 
     def to_representation(self, instance):
-        return {'short-link': self.get_short_link(instance)}
+        return {"short-link": self.get_short_link(instance)}
